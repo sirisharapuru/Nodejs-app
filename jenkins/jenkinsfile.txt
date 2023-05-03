@@ -6,12 +6,12 @@ pipeline {
                 git credentialsId: 'git_credentials', url: 'https://github.com/sirisharapuru/Nodejs-app.git'
             }
         }
-stages {
-        stage ("build"){
-            steps{
-                echo "This is Build project run with maven tool ................"
+        stage('Build') {
+            steps {
+                checkout scm
+                sh 'mvn clean install' //build using Maven
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true //archive JAR files
             }
-        }
-
+       }
     }
 }
