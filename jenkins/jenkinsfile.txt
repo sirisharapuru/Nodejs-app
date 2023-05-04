@@ -1,17 +1,29 @@
 pipeline {
     agent any
+    
     stages {
-        stage ("git"){
-            steps{
-                git credentialsId: 'git_credentials', url: 'https://github.com/sirisharapuru/Nodejs-app.git'
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', 
+                          branches: [[name: '*/main']],
+                          doGenerateSubmoduleConfigurations: false, 
+                          extensions: [], 
+                          submoduleCfg: [], 
+                          userRemoteConfigs: [[url: 'https://github.com/sirisharapuru/Nodejs-app.git']]
+                        ])
             }
         }
-        stage('Build') {
+        
+        stage('Build Docker image') {
             steps {
-                checkout scm
-                sh 'mvn clean install' //build using Maven
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true //archive JAR files
+                sh "docker build -t image ."
             }
-       }
+        }
+        
+        stage('Run container') {
+            steps {
+                sh "docker run -d -p 3000:3000 --name name image"
+            }
+        }
     }
-}
+
